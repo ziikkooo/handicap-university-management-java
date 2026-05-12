@@ -18,7 +18,7 @@ Important rule:
 
 ---
 
-## Person 1 — Database + JDBC + Project Base
+## Person 1 — Database + JDBC + Project Base XXXXXXXXXXXXXXXXXXXXXX
 
 Branch:
 feature/database
@@ -107,7 +107,7 @@ The app can know who is connected and what role he has.
 
 ---
 
-## Person 3 — Users / Profiles
+## Person 3 — Users / Profiles XXXXXXXXXXXXXXXX
 
 Branch:
 feature/users
