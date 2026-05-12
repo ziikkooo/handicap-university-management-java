@@ -1,6 +1,3 @@
-cd ~/Desktop/handicap-university-management-java
-
-cat > docs/team-tasks.md <<'EOF'
 # Team Task Distribution
 
 Project: Java Desktop application for managing requests and complaints of students in situation of disability inside a university.
