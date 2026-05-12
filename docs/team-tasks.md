@@ -18,7 +18,7 @@ Important rule:
 
 ---
 
-## Person 1 — Database + JDBC + Project Base XXXXXXXXXXXXXXXXXXXXXX
+## Person 1 — Database + JDBC + Project Base XXXXXXXXXXXXXXXXXXXXXX ZAKARIA
 
 Branch:
 feature/database
@@ -107,7 +107,7 @@ The app can know who is connected and what role he has.
 
 ---
 
-## Person 3 — Users / Profiles XXXXXXXXXXXXXXXX
+## Person 3 — Users / Profiles XXXXXXXXXXXXXXXX ADAM
 
 Branch:
 feature/users
@@ -307,7 +307,7 @@ The app can manage reclamations and track their treatment.
 
 ---
 
-## Person 7 — Dashboard + Statistics
+## Person 7 — Dashboard + Statistics XXXXXXXXXXXXXX ALI
 
 Branch:
 feature/dashboard
