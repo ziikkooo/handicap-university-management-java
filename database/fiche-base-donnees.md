@@ -102,7 +102,7 @@ Colonnes:
 Types:
 `DEMANDE`, `RECLAMATION`
 
-## 5. Relation b darija
+## 5. Relation 
 `users` hiya table principale.  
 `personnes_handicap`, `demandes`, `reclamations` kaytconnectaw m3a `users`.  
 `pieces_justificatives` kaytconnecta m3a `demandes`.  
