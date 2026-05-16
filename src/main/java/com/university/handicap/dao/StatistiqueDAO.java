@@ -1,164 +1,138 @@
 package com.university.handicap.dao;
 
 import com.university.handicap.config.DatabaseConnection;
-import java.sql.*;
+import com.university.handicap.models.DashboardStats;
 
-// cette classe fait toutes les requetes SQL pour le dashboard
-// on touche pas aux autres tables ici, juste SELECT et COUNT
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class StatistiqueDAO {
 
-    private Connection connection;
+    public DashboardStats getDashboardStats() {
+        DashboardStats stats = new DashboardStats();
 
-    public StatistiqueDAO() {
-        // on recupere la connexion depuis la classe de person 1
-        this.connection = DatabaseConnection.getConnection();
+        stats.setDemandesEnCours(countDemandesByStatut("EN_COURS"));
+        stats.setDemandesAcceptees(countDemandesByStatut("ACCEPTEE"));
+        stats.setDemandesRefusees(countDemandesByStatut("REFUSEE"));
+
+        stats.setReclamationsEnCours(countReclamationsByStatut("EN_COURS"));
+        stats.setReclamationsTraitees(countReclamationsByStatut("TRAITEE"));
+        stats.setReclamationsRejetees(countReclamationsByStatut("REJETEE"));
+
+        return stats;
     }
 
-    // compter les demandes selon leur statut (EN_COURS, ACCEPTEE, REFUSEE)
     public int countDemandesByStatut(String statut) {
-        int count = 0;
         String sql = "SELECT COUNT(*) FROM demandes WHERE statut = ?";
-
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, statut);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-
-            rs.close();
-            stmt.close();
-
-        } catch (SQLException e) {
-            // TODO: faire une vraie gestion d'erreur plus tard
-            System.out.println("Erreur countDemandesByStatut : " + e.getMessage());
-        }
-
-        return count;
+        return countWithOneParameter(sql, statut);
     }
 
-    // compter les demandes selon leur type
-    public int countDemandesByType(String type) {
-        int count = 0;
+    public int countDemandesByType(String typeDemande) {
         String sql = "SELECT COUNT(*) FROM demandes WHERE type_demande = ?";
-
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, type);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-
-            rs.close();
-            stmt.close();
-
-        } catch (SQLException e) {
-            System.out.println("Erreur countDemandesByType : " + e.getMessage());
-        }
-
-        return count;
+        return countWithOneParameter(sql, typeDemande);
     }
 
-    // pareil mais pour les reclamations
     public int countReclamationsByStatut(String statut) {
-        int count = 0;
         String sql = "SELECT COUNT(*) FROM reclamations WHERE statut = ?";
-
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, statut);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-
-            rs.close();
-            stmt.close();
-
-        } catch (SQLException e) {
-            System.out.println("Erreur countReclamationsByStatut : " + e.getMessage());
-        }
-
-        return count;
+        return countWithOneParameter(sql, statut);
     }
 
-    // compter les demandes entre deux dates
-    // dateDebut et dateFin sont des java.sql.Date
+    public int countAllDemandes() {
+        String sql = "SELECT COUNT(*) FROM demandes";
+        return countSimple(sql);
+    }
+
+    public int countAllReclamations() {
+        String sql = "SELECT COUNT(*) FROM reclamations";
+        return countSimple(sql);
+    }
+
     public int countDemandesBetweenDates(Date dateDebut, Date dateFin) {
-        int count = 0;
-        String sql = "SELECT COUNT(*) FROM demandes WHERE date_creation BETWEEN ? AND ?";
+        String sql = "SELECT COUNT(*) FROM demandes WHERE DATE(created_at) BETWEEN ? AND ?";
 
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setDate(1, dateDebut);
-            stmt.setDate(2, dateFin);
-            ResultSet rs = stmt.executeQuery();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            if (rs.next()) {
-                count = rs.getInt(1);
+            statement.setDate(1, dateDebut);
+            statement.setDate(2, dateFin);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
             }
 
-            rs.close();
-            stmt.close();
-
         } catch (SQLException e) {
-            System.out.println("Erreur countDemandesBetweenDates : " + e.getMessage());
+            System.out.println("Mouchkil f countDemandesBetweenDates: " + e.getMessage());
         }
 
-        return count;
+        return 0;
     }
 
-    // stats annuelles pour les demandes
     public int countDemandesByAnnee(int annee) {
-        int count = 0;
-        // YEAR() c'est une fonction MySQL
-        String sql = "SELECT COUNT(*) FROM demandes WHERE YEAR(date_creation) = ?";
-
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, annee);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
-
-            rs.close();
-            stmt.close();
-
-        } catch (SQLException e) {
-            System.out.println("Erreur countDemandesByAnnee : " + e.getMessage());
-        }
-
-        return count;
+        String sql = "SELECT COUNT(*) FROM demandes WHERE YEAR(created_at) = ?";
+        return countWithOneIntParameter(sql, annee);
     }
 
-    // pareil pour les reclamations
     public int countReclamationsByAnnee(int annee) {
-        int count = 0;
-        String sql = "SELECT COUNT(*) FROM reclamations WHERE YEAR(date_creation) = ?";
+        String sql = "SELECT COUNT(*) FROM reclamations WHERE YEAR(created_at) = ?";
+        return countWithOneIntParameter(sql, annee);
+    }
 
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, annee);
-            ResultSet rs = stmt.executeQuery();
+    private int countSimple(String sql) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-            if (rs.next()) {
-                count = rs.getInt(1);
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
             }
 
-            rs.close();
-            stmt.close();
-
         } catch (SQLException e) {
-            System.out.println("Erreur countReclamationsByAnnee : " + e.getMessage());
+            System.out.println("Mouchkil f statistique: " + e.getMessage());
         }
 
-        return count;
+        return 0;
+    }
+
+    private int countWithOneParameter(String sql, String value) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, value);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Mouchkil f statistique: " + e.getMessage());
+        }
+
+        return 0;
+    }
+
+    private int countWithOneIntParameter(String sql, int value) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, value);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Mouchkil f statistique: " + e.getMessage());
+        }
+
+        return 0;
     }
 }
