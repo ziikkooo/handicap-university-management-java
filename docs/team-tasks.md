@@ -355,7 +355,7 @@ The admin can see useful numbers for the dashboard.
 
 ---
 
-## Person 8 — Archive + Search + Integration
+## Person 8 — Archive + Search + Integration XXXXXXXXXXXXXXX ilias
 
 Branch:
 feature/archive-search
