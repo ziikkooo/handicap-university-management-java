@@ -3,6 +3,7 @@ package com.university.handicap.dao;
 import com.university.handicap.models.Demande;
 import com.university.handicap.models.TypeDemande;
 import com.university.handicap.models.StatutDemande;
+import com.university.handicap.config.DatabaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,9 +11,8 @@ import java.util.List;
 
 public class DemandeDAO {
 
-    // ── Replace with your project's actual connection class ───
     private Connection getConnection() throws SQLException {
-        return DBConnection.getConnection();
+        return DatabaseConnection.getConnection();
     }
 
     // ── CREATE ────────────────────────────────────────────────
