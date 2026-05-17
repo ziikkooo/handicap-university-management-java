@@ -1,9 +1,9 @@
 package com.university.handicap.dao;
 
-import com.university.handicap.models.Demande;
-import com.university.handicap.models.TypeDemande;
-import com.university.handicap.models.StatutDemande;
 import com.university.handicap.config.DatabaseConnection;
+import com.university.handicap.models.Demande;
+import com.university.handicap.models.StatutDemande;
+import com.university.handicap.models.TypeDemande;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -11,153 +11,146 @@ import java.util.List;
 
 public class DemandeDAO {
 
-    private Connection getConnection() throws SQLException {
-        return DatabaseConnection.getConnection();
-    }
-
-    // ── CREATE ────────────────────────────────────────────────
-
     public boolean create(Demande demande) {
-        String sql = "INSERT INTO demandes (user_id, type, statut, description, date_creation) "
-                   + "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO demandes (user_id, type_demande, description, statut) VALUES (?, ?, ?, ?)";
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            ps.setInt      (1, demande.getUserId());
-            ps.setString   (2, demande.getType().name());
-            ps.setString   (3, demande.getStatut().name());
-            ps.setString   (4, demande.getDescription());
-            ps.setTimestamp(5, new Timestamp(demande.getDateCreation().getTime()));
+            statement.setInt(1, demande.getUserId());
+            statement.setString(2, demande.getType().name());
+            statement.setString(3, demande.getDescription());
+            statement.setString(4, demande.getStatut().name());
 
-            int rows = ps.executeUpdate();
-
-            if (rows > 0) {
-                ResultSet keys = ps.getGeneratedKeys();
-                if (keys.next()) {
-                    demande.setId(keys.getInt(1));
-                }
-                return true;
-            }
+            return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("DemandeDAO.create() error: " + e.getMessage());
+            System.out.println("Erreur dans DemandeDAO.create : " + e.getMessage());
+            return false;
         }
-        return false;
     }
-
-    // ── UPDATE ────────────────────────────────────────────────
 
     public boolean update(Demande demande) {
-        String sql = "UPDATE demandes SET type = ?, statut = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE demandes SET type_demande = ?, statut = ?, description = ? WHERE id = ?";
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            ps.setString(1, demande.getType().name());
-            ps.setString(2, demande.getStatut().name());
-            ps.setString(3, demande.getDescription());
-            ps.setInt   (4, demande.getId());
+            statement.setString(1, demande.getType().name());
+            statement.setString(2, demande.getStatut().name());
+            statement.setString(3, demande.getDescription());
+            statement.setInt(4, demande.getId());
 
-            return ps.executeUpdate() > 0;
+            return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("DemandeDAO.update() error: " + e.getMessage());
+            System.out.println("Erreur dans DemandeDAO.update : " + e.getMessage());
+            return false;
         }
-        return false;
     }
-
-    // ── DELETE ────────────────────────────────────────────────
 
     public boolean delete(int id) {
         String sql = "DELETE FROM demandes WHERE id = ?";
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+            statement.setInt(1, id);
+            return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("DemandeDAO.delete() error: " + e.getMessage());
+            System.out.println("Erreur dans DemandeDAO.delete : " + e.getMessage());
+            return false;
         }
-        return false;
     }
-
-    // ── FIND ALL ──────────────────────────────────────────────
 
     public List<Demande> findAll() {
-        List<Demande> list = new ArrayList<>();
-        String sql = "SELECT * FROM demandes ORDER BY date_creation DESC";
+        List<Demande> demandes = new ArrayList<>();
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        String sql = "SELECT id, user_id, type_demande, description, statut, created_at FROM demandes ORDER BY created_at DESC";
 
-            while (rs.next()) {
-                list.add(mapRow(rs));
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            while (resultSet.next()) {
+                demandes.add(mapResultSetToDemande(resultSet));
             }
 
         } catch (SQLException e) {
-            System.err.println("DemandeDAO.findAll() error: " + e.getMessage());
+            System.out.println("Erreur dans DemandeDAO.findAll : " + e.getMessage());
         }
-        return list;
-    }
 
-    // ── FIND BY USER ──────────────────────────────────────────
+        return demandes;
+    }
 
     public List<Demande> findByUser(int userId) {
-        List<Demande> list = new ArrayList<>();
-        String sql = "SELECT * FROM demandes WHERE user_id = ? ORDER BY date_creation DESC";
+        List<Demande> demandes = new ArrayList<>();
 
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
+        String sql = "SELECT id, user_id, type_demande, description, statut, created_at " +
+                     "FROM demandes WHERE user_id = ? ORDER BY created_at DESC";
 
-            ps.setInt(1, userId);
-            ResultSet rs = ps.executeQuery();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                list.add(mapRow(rs));
+            statement.setInt(1, userId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    demandes.add(mapResultSetToDemande(resultSet));
+                }
             }
 
         } catch (SQLException e) {
-            System.err.println("DemandeDAO.findByUser() error: " + e.getMessage());
+            System.out.println("Erreur dans DemandeDAO.findByUser : " + e.getMessage());
         }
-        return list;
+
+        return demandes;
     }
 
-    // ── FIND BY TYPE ──────────────────────────────────────────
+    public List<Demande> findByType(String type) {
+        List<Demande> demandes = new ArrayList<>();
+
+        String sql = "SELECT id, user_id, type_demande, description, statut, created_at " +
+                     "FROM demandes WHERE type_demande = ? ORDER BY created_at DESC";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, type);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    demandes.add(mapResultSetToDemande(resultSet));
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erreur dans DemandeDAO.findByType : " + e.getMessage());
+        }
+
+        return demandes;
+    }
+
 
     public List<Demande> findByType(TypeDemande type) {
-        List<Demande> list = new ArrayList<>();
-        String sql = "SELECT * FROM demandes WHERE type = ? ORDER BY date_creation DESC";
-
-        try (Connection con = getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            ps.setString(1, type.name());
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                list.add(mapRow(rs));
-            }
-
-        } catch (SQLException e) {
-            System.err.println("DemandeDAO.findByType() error: " + e.getMessage());
+        if (type == null) {
+            return new ArrayList<>();
         }
-        return list;
+
+        return findByType(type.name());
     }
 
-    // ── ROW MAPPER (reused by all SELECT methods) ─────────────
+    private Demande mapResultSetToDemande(ResultSet resultSet) throws SQLException {
+        Demande demande = new Demande();
 
-    private Demande mapRow(ResultSet rs) throws SQLException {
-        Demande d = new Demande();
-        d.setId          (rs.getInt      ("id"));
-        d.setUserId      (rs.getInt      ("user_id"));
-        d.setType        (TypeDemande  .valueOf(rs.getString("type")));
-        d.setStatut      (StatutDemande.valueOf(rs.getString("statut")));
-        d.setDescription (rs.getString   ("description"));
-        d.setDateCreation(rs.getTimestamp("date_creation"));
-        return d;
+        demande.setId(resultSet.getInt("id"));
+        demande.setUserId(resultSet.getInt("user_id"));
+        demande.setType(TypeDemande.valueOf(resultSet.getString("type_demande")));
+        demande.setDescription(resultSet.getString("description"));
+        demande.setStatut(StatutDemande.valueOf(resultSet.getString("statut")));
+        demande.setDateCreation(resultSet.getDate("created_at"));
+
+        return demande;
     }
 }
