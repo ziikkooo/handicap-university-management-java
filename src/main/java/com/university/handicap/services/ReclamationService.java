@@ -70,7 +70,7 @@ public class ReclamationService {
             historique.setAdminId(adminId);
             historique.setAncienStatut(ancienStatut);
             historique.setNouveauStatut(nouveauStatut.name());
-            historique.setAction("Changement statut reclamation");
+            historique.setAction("Changement du statut de la réclamation");
 
             historiqueDAO.addHistorique(historique);
         }

@@ -76,7 +76,7 @@ public class DemandeWorkflowService {
                 historique.setAdminId(adminId);
                 historique.setAncienStatut(ancienStatut);
                 historique.setNouveauStatut(nouveauStatut);
-                historique.setAction("Changement statut demande");
+                historique.setAction("Changement du statut de la demande");
 
                 historiqueDAO.addHistorique(historique);
             }
@@ -84,7 +84,7 @@ public class DemandeWorkflowService {
             return updated;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f changeStatut: " + e.getMessage());
+            System.out.println("Erreur dans changeStatut : " + e.getMessage());
             return false;
         }
     }
@@ -112,7 +112,7 @@ public class DemandeWorkflowService {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getStatutDemande: " + e.getMessage());
+            System.out.println("Erreur dans getStatutDemande : " + e.getMessage());
         }
 
         return null;

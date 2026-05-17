@@ -29,7 +29,7 @@ public class ReclamationDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f createReclamation: " + e.getMessage());
+            System.out.println("Erreur dans createReclamation : " + e.getMessage());
             return false;
         }
     }
@@ -47,7 +47,7 @@ public class ReclamationDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f updateReclamation: " + e.getMessage());
+            System.out.println("Erreur dans updateReclamation : " + e.getMessage());
             return false;
         }
     }
@@ -62,7 +62,7 @@ public class ReclamationDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f deleteReclamation: " + e.getMessage());
+            System.out.println("Erreur dans deleteReclamation : " + e.getMessage());
             return false;
         }
     }
@@ -79,7 +79,7 @@ public class ReclamationDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f changeStatutReclamation: " + e.getMessage());
+            System.out.println("Erreur dans changeStatutReclamation : " + e.getMessage());
             return false;
         }
     }
@@ -100,7 +100,7 @@ public class ReclamationDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getReclamationById: " + e.getMessage());
+            System.out.println("Erreur dans getReclamationById : " + e.getMessage());
         }
 
         return null;
@@ -121,7 +121,7 @@ public class ReclamationDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getAllReclamations: " + e.getMessage());
+            System.out.println("Erreur dans getAllReclamations : " + e.getMessage());
         }
 
         return reclamations;
@@ -145,7 +145,7 @@ public class ReclamationDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getReclamationsByUser: " + e.getMessage());
+            System.out.println("Erreur dans getReclamationsByUser : " + e.getMessage());
         }
 
         return reclamations;
@@ -169,7 +169,7 @@ public class ReclamationDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getReclamationsByStatut: " + e.getMessage());
+            System.out.println("Erreur dans getReclamationsByStatut : " + e.getMessage());
         }
 
         return reclamations;

@@ -25,7 +25,7 @@ public class DatabaseConnection {
         try (Connection connection = getConnection()) {
             return connection != null;
         } catch (SQLException e) {
-            System.out.println("Mouchkil f connection m3a database: " + e.getMessage());
+            System.out.println("Erreur de connexion à la base de données : " + e.getMessage());
             return false;
         }
     }

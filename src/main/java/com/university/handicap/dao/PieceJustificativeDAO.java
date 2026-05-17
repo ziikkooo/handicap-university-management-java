@@ -22,7 +22,7 @@ public class PieceJustificativeDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f addPieceJustificative: " + e.getMessage());
+            System.out.println("Erreur dans addPieceJustificative : " + e.getMessage());
             return false;
         }
     }
@@ -45,7 +45,7 @@ public class PieceJustificativeDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getPiecesByDemande: " + e.getMessage());
+            System.out.println("Erreur dans getPiecesByDemande : " + e.getMessage());
         }
 
         return pieces;
@@ -61,7 +61,7 @@ public class PieceJustificativeDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f deletePieceJustificative: " + e.getMessage());
+            System.out.println("Erreur dans deletePieceJustificative : " + e.getMessage());
             return false;
         }
     }

@@ -24,7 +24,7 @@ public class PersonneHandicapDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f addPersonne: " + e.getMessage());
+            System.out.println("Erreur dans addPersonne : " + e.getMessage());
             return false;
         }
     }
@@ -59,14 +59,14 @@ public class PersonneHandicapDAO {
                 return rows > 0;
             } catch (SQLException e) {
                 connection.rollback();
-                System.out.println("Mouchkil f updatePersonne: " + e.getMessage());
+                System.out.println("Erreur dans updatePersonne : " + e.getMessage());
                 return false;
             } finally {
                 connection.setAutoCommit(true);
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f connection dyal updatePersonne: " + e.getMessage());
+            System.out.println("Erreur dans connection dyal updatePersonne : " + e.getMessage());
             return false;
         }
     }
@@ -81,7 +81,7 @@ public class PersonneHandicapDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f deletePersonne: " + e.getMessage());
+            System.out.println("Erreur dans deletePersonne : " + e.getMessage());
             return false;
         }
     }
@@ -105,7 +105,7 @@ public class PersonneHandicapDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getPersonneById: " + e.getMessage());
+            System.out.println("Erreur dans getPersonneById : " + e.getMessage());
         }
 
         return null;
@@ -130,7 +130,7 @@ public class PersonneHandicapDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getPersonneByUserId: " + e.getMessage());
+            System.out.println("Erreur dans getPersonneByUserId : " + e.getMessage());
         }
 
         return null;
@@ -153,7 +153,7 @@ public class PersonneHandicapDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getAllPersonnes: " + e.getMessage());
+            System.out.println("Erreur dans getAllPersonnes : " + e.getMessage());
         }
 
         return personnes;
@@ -188,7 +188,7 @@ public class PersonneHandicapDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f searchPersonnes: " + e.getMessage());
+            System.out.println("Erreur dans searchPersonnes : " + e.getMessage());
         }
 
         return personnes;

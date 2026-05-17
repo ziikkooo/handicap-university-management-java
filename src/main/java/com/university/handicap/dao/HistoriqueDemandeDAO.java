@@ -32,7 +32,7 @@ public class HistoriqueDemandeDAO {
             return statement.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f addHistoriqueDemande: " + e.getMessage());
+            System.out.println("Erreur dans addHistoriqueDemande : " + e.getMessage());
             return false;
         }
     }
@@ -55,7 +55,7 @@ public class HistoriqueDemandeDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f getHistoriqueByDemande: " + e.getMessage());
+            System.out.println("Erreur dans getHistoriqueByDemande : " + e.getMessage());
         }
 
         return historiques;

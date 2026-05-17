@@ -66,7 +66,7 @@ public class StatistiqueDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f countDemandesBetweenDates: " + e.getMessage());
+            System.out.println("Erreur dans countDemandesBetweenDates : " + e.getMessage());
         }
 
         return 0;
@@ -92,7 +92,7 @@ public class StatistiqueDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f statistique: " + e.getMessage());
+            System.out.println("Erreur dans statistique : " + e.getMessage());
         }
 
         return 0;
@@ -111,7 +111,7 @@ public class StatistiqueDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f statistique: " + e.getMessage());
+            System.out.println("Erreur dans statistique : " + e.getMessage());
         }
 
         return 0;
@@ -130,7 +130,7 @@ public class StatistiqueDAO {
             }
 
         } catch (SQLException e) {
-            System.out.println("Mouchkil f statistique: " + e.getMessage());
+            System.out.println("Erreur dans statistique : " + e.getMessage());
         }
 
         return 0;
