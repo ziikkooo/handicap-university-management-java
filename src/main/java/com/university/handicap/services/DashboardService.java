@@ -43,7 +43,7 @@ public class DashboardService {
         return statistiqueDAO.countDemandesByType(type);
     }
 
-    //  un statut de reclamation
+    // statut de reclamation
     public int countReclamationsByStatut(String statut) {
         return statistiqueDAO.countReclamationsByStatut(statut);
     }
