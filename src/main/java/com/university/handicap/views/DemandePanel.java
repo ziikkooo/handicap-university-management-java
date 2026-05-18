@@ -3,6 +3,7 @@ package com.university.handicap.views;
 import com.university.handicap.controllers.DemandeController;
 import com.university.handicap.models.Demande;
 import com.university.handicap.models.HistoriqueDemande;
+import com.university.handicap.models.PieceJustificative;
 import com.university.handicap.models.User;
 import com.university.handicap.services.DemandeWorkflowService;
 
@@ -10,6 +11,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.File;
 import java.util.Calendar;
 import java.util.List;
 
@@ -22,6 +24,8 @@ public class DemandePanel extends JPanel {
 
     private JComboBox<String> createTypeBox;
     private JTextArea createDescriptionArea;
+    private File selectedPieceFile;
+    private JLabel selectedPieceLabel;
 
     private JComboBox<String> filterTypeBox;
     private JComboBox<String> filterStatusBox;
@@ -78,6 +82,12 @@ public class DemandePanel extends JPanel {
         createDescriptionArea.setLineWrap(true);
         createDescriptionArea.setWrapStyleWord(true);
 
+        selectedPieceLabel = new JLabel("Aucun fichier sélectionné");
+        selectedPieceLabel.setForeground(AppTheme.MUTED);
+
+        JButton choosePieceButton = AppTheme.secondaryButton("Choisir une pièce");
+        choosePieceButton.addActionListener(e -> choosePieceFile());
+
         JButton sendButton = AppTheme.primaryButton("Envoyer la demande");
 
         c.gridx = 0;
@@ -98,8 +108,22 @@ public class DemandePanel extends JPanel {
         c.weightx = 1;
         form.add(new JScrollPane(createDescriptionArea), c);
 
-        c.gridx = 1;
+        c.gridx = 0;
         c.gridy = 2;
+        c.weightx = 0;
+        form.add(new JLabel("Pièce justificative :"), c);
+
+        JPanel piecePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        piecePanel.setOpaque(false);
+        piecePanel.add(choosePieceButton);
+        piecePanel.add(selectedPieceLabel);
+
+        c.gridx = 1;
+        c.weightx = 1;
+        form.add(piecePanel, c);
+
+        c.gridx = 1;
+        c.gridy = 3;
         c.anchor = GridBagConstraints.EAST;
         form.add(sendButton, c);
 
@@ -126,7 +150,7 @@ public class DemandePanel extends JPanel {
 
         block.add(top, BorderLayout.NORTH);
 
-        tableModel = new DefaultTableModel(new Object[]{"ID", "Type", "Description", "Statut", "Date"}, 0) {
+        tableModel = new DefaultTableModel(new Object[]{"ID", "Type", "Description", "Statut", "Date", "Pièce"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
@@ -142,9 +166,7 @@ public class DemandePanel extends JPanel {
 
         block.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        if (adminMode) {
-            block.add(buildAdminActions(), BorderLayout.EAST);
-        }
+        block.add(buildRightActions(), BorderLayout.EAST);
 
         block.add(buildHistoriqueScreen(), BorderLayout.SOUTH);
 
@@ -206,11 +228,15 @@ public class DemandePanel extends JPanel {
         return row;
     }
 
-    private JPanel buildAdminActions() {
+    private JPanel buildRightActions() {
         JPanel actions = new JPanel();
         actions.setOpaque(false);
         actions.setLayout(new BoxLayout(actions, BoxLayout.Y_AXIS));
         actions.setPreferredSize(new Dimension(190, 0));
+
+        if (!adminMode) {
+            return actions;
+        }
 
         JLabel label = new JLabel("Nouveau statut :");
         label.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -222,11 +248,17 @@ public class DemandePanel extends JPanel {
         statusButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         statusButton.addActionListener(e -> updateSelectedStatus());
 
+        JButton viewPiecesButton = AppTheme.secondaryButton("Voir pièces");
+        viewPiecesButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        viewPiecesButton.addActionListener(e -> showSelectedPieces());
+
         actions.add(label);
         actions.add(Box.createVerticalStrut(8));
         actions.add(statutBox);
         actions.add(Box.createVerticalStrut(12));
         actions.add(statusButton);
+        actions.add(Box.createVerticalStrut(12));
+        actions.add(viewPiecesButton);
 
         return actions;
     }
@@ -274,13 +306,55 @@ public class DemandePanel extends JPanel {
 
         boolean ok = demandeController.createDemande(currentUser.getId(), type, description);
 
-        if (ok) {
-            JOptionPane.showMessageDialog(this, "Demande envoyée avec succès.");
-            createDescriptionArea.setText("");
-            loadDemandes();
-        } else {
+        if (!ok) {
             JOptionPane.showMessageDialog(this, "Erreur lors de l'envoi de la demande.");
+            return;
         }
+
+        if (selectedPieceFile != null) {
+            Demande createdDemande = findLatestCreatedDemande(type, description);
+
+            if (createdDemande != null) {
+                boolean pieceOk = workflowService.addPieceJustificative(createdDemande.getId(), selectedPieceFile);
+
+                if (!pieceOk) {
+                    JOptionPane.showMessageDialog(this,
+                            "Demande envoyée, mais erreur lors de l'ajout de la pièce justificative.");
+                }
+            }
+        }
+
+        JOptionPane.showMessageDialog(this, "Demande envoyée avec succès.");
+        createDescriptionArea.setText("");
+        selectedPieceFile = null;
+        selectedPieceLabel.setText("Aucun fichier sélectionné");
+        loadDemandes();
+    }
+
+    private void choosePieceFile() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Choisir une pièce justificative");
+
+        int result = chooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            selectedPieceFile = chooser.getSelectedFile();
+            selectedPieceLabel.setText(selectedPieceFile.getName());
+        }
+    }
+
+    private Demande findLatestCreatedDemande(String type, String description) {
+        List<Demande> demandes = demandeController.getDemandesByUser(currentUser.getId());
+
+        for (Demande d : demandes) {
+            if (d.getType().name().equals(type)
+                    && d.getDescription() != null
+                    && d.getDescription().equals(description)) {
+                return d;
+            }
+        }
+
+        return demandes.isEmpty() ? null : demandes.get(0);
     }
 
     private void loadDemandes() {
@@ -351,12 +425,17 @@ public class DemandePanel extends JPanel {
         tableModel.setRowCount(0);
 
         for (Demande d : demandes) {
+            String pieceSigne = workflowService.getPiecesByDemande(d.getId()).isEmpty()
+                    ? "—"
+                    : "📎 Oui";
+
             tableModel.addRow(new Object[]{
                     d.getId(),
                     d.getType(),
                     d.getDescription(),
                     d.getStatut(),
-                    d.getDateCreation()
+                    d.getDateCreation(),
+                    pieceSigne
             });
         }
     }
@@ -427,6 +506,111 @@ public class DemandePanel extends JPanel {
         demandes.removeIf(d -> !d.getStatut().name().equals(statut));
         historiqueArea.setText("Filtre appliqué depuis le dashboard : statut = " + statut);
         fillTable(demandes);
+    }
+
+
+    private void addPieceToSelectedDemande() {
+        int id = getSelectedDemandeId();
+
+        if (id <= 0) {
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner une demande.");
+            return;
+        }
+
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Choisir une pièce justificative");
+
+        int result = chooser.showOpenDialog(this);
+
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File selectedFile = chooser.getSelectedFile();
+
+        boolean ok = workflowService.addPieceJustificative(id, selectedFile);
+
+        if (ok) {
+            JOptionPane.showMessageDialog(this, "Pièce justificative ajoutée avec succès.");
+        } else {
+            JOptionPane.showMessageDialog(this, "Erreur lors de l'ajout de la pièce justificative.");
+        }
+    }
+
+    private void showSelectedPieces() {
+        int id = getSelectedDemandeId();
+
+        if (id <= 0) {
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner une demande.");
+            return;
+        }
+
+        List<PieceJustificative> pieces = workflowService.getPiecesByDemande(id);
+
+        if (pieces.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Aucune pièce justificative trouvée pour cette demande.");
+            return;
+        }
+
+        PieceJustificative piece = pieces.get(0);
+        showPiecePreview(piece);
+    }
+
+    private void showPiecePreview(PieceJustificative piece) {
+        File file = new File(piece.getFilePath());
+
+        if (!file.exists()) {
+            file = new File(System.getProperty("user.dir"), piece.getFilePath());
+        }
+
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+
+        JTextArea info = new JTextArea();
+        info.setEditable(false);
+        info.setText(
+                "Fichier : " + piece.getFileName() + "\n" +
+                "Chemin  : " + piece.getFilePath() + "\n" +
+                "Date    : " + piece.getUploadedAt()
+        );
+        panel.add(info, BorderLayout.NORTH);
+
+        if (isImageFile(file.getName()) && file.exists()) {
+            ImageIcon icon = new ImageIcon(file.getAbsolutePath());
+            Image image = icon.getImage();
+
+            int maxWidth = 600;
+            int maxHeight = 350;
+
+            int width = icon.getIconWidth();
+            int height = icon.getIconHeight();
+
+            double ratio = Math.min((double) maxWidth / width, (double) maxHeight / height);
+            int newWidth = Math.max(1, (int) (width * ratio));
+            int newHeight = Math.max(1, (int) (height * ratio));
+
+            Image scaledImage = image.getScaledInstance(newWidth, newHeight, Image.SCALE_SMOOTH);
+            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+            imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+            panel.add(new JScrollPane(imageLabel), BorderLayout.CENTER);
+        } else {
+            JTextArea message = new JTextArea("Aperçu non disponible. Le fichier existe, mais ce n'est pas une image.");
+            message.setEditable(false);
+            panel.add(message, BorderLayout.CENTER);
+        }
+
+        panel.setPreferredSize(new Dimension(700, 500));
+
+        JOptionPane.showMessageDialog(this, panel, "Pièce justificative", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private boolean isImageFile(String fileName) {
+        String lower = fileName.toLowerCase();
+        return lower.endsWith(".png")
+                || lower.endsWith(".jpg")
+                || lower.endsWith(".jpeg")
+                || lower.endsWith(".gif")
+                || lower.endsWith(".bmp");
     }
 
     private void loadHistorique(int demandeId) {

@@ -88,7 +88,11 @@ public class LoginFrame extends JFrame {
         c.gridx = 0;
         c.gridwidth = 2;
         JButton loginButton = AppTheme.primaryButton("Se connecter");
+        JButton registerButton = AppTheme.secondaryButton("Créer un compte");
         loginCard.add(loginButton, c);
+
+        c.gridy++;
+        loginCard.add(registerButton, c);
 
         c.gridy++;
         JLabel hint = new JLabel("Utilisez les comptes de test fournis dans la base de données.");
@@ -105,6 +109,10 @@ public class LoginFrame extends JFrame {
         add(root);
 
         loginButton.addActionListener(e -> login());
+        registerButton.addActionListener(e -> {
+            new RegisterFrame().setVisible(true);
+            dispose();
+        });
         getRootPane().setDefaultButton(loginButton);
     }
 
