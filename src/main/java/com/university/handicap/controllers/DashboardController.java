@@ -4,9 +4,7 @@ import com.university.handicap.models.DashboardStats;
 import com.university.handicap.services.DashboardService;
 import java.sql.Date;
 
-// controller du dashboard
-// c'est lui qui sera appele depuis la vue Swing
-// il fait rien de special a part appeler le service
+
 public class DashboardController {
 
     private DashboardService dashboardService;
