@@ -2,32 +2,29 @@ package com.university.handicap.models;
 
 public class DashboardStats {
 
-    // stats des demandes
+   
     private int demandesEnCours;
     private int demandesAcceptees;
     private int demandesRefusees;
 
-    // stats des reclamations
+
     private int reclamationsEnCours;
     private int reclamationsTraitees;
     private int reclamationsRejetees;
 
-    // stats par type
+ 
     private int demandesAmenagement;
     private int demandesAccessibilite;
     private int demandesAccompagnement;
     private int demandesAutre;
 
-    // pour les stats annuelles
+    
     private int annee;
     private int totalDemandesAnnee;
     private int totalReclamationsAnnee;
 
-    // constructeur vide obligatoire
+    
     public DashboardStats() {}
-
-    // --- getters et setters ---
-    // j'ai généré ca avec IntelliJ c'est plus rapide lol
 
     public int getDemandesEnCours() { 
         return demandesEnCours; }
