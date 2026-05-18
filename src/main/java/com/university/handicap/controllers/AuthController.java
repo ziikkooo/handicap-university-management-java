@@ -22,6 +22,12 @@ public class AuthController {
         return user;
     }
 
+
+    public boolean registerPersonne(String nom, String prenom, String email, String password,
+                                    String telephone, String typeHandicap, String filiere, String niveau) {
+        return authService.registerPersonne(nom, prenom, email, password, telephone, typeHandicap, filiere, niveau);
+    }
+
     public void logout() {
         authService.logout();
     }
