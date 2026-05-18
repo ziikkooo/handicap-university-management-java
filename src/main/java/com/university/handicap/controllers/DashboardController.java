@@ -13,22 +13,22 @@ public class DashboardController {
         this.dashboardService = new DashboardService();
     }
 
-    // recuperer toutes les stats (pour afficher le dashboard)
+    // recuperer toutes les stats
     public DashboardStats getAllStats() {
         return dashboardService.getAllStats();
     }
 
-    // compter demandes par statut
+    //demandes par statut
     public int countDemandesByStatut(String statut) {
         return dashboardService.countDemandesByStatut(statut);
     }
 
-    // compter demandes par type
+    //demandes par type
     public int countDemandesByType(String type) {
         return dashboardService.countDemandesByType(type);
     }
 
-    // compter reclamations par statut
+    //reclamations par statut
     public int countReclamationsByStatut(String statut) {
         return dashboardService.countReclamationsByStatut(statut);
     }
